@@ -9,6 +9,8 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "docker:dev": "docker-compose run --service-ports dev",
+    "docker:prod": "docker-compose run --service-ports prod",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
