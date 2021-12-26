@@ -6,4 +6,4 @@ import { EtherService } from "./services/ether.service";
     providers: [ EtherService ],
     exports: [ EtherService ]
 })
-class EtherModule {};
+export class EtherModule {};
