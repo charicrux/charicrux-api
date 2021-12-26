@@ -1,18 +1,18 @@
-import { ConsoleLogger, Injectable } from "@nestjs/common";
-import crypto from "crypto";
-import ethers from "ethers";
+import { Injectable } from "@nestjs/common";
 import { generateTemplateFilesBatch, CaseConverterEnum } from "generate-template-files";
-const solc = require("solc");
+const { exec } = require("child_process");
 const path = require('path');
-const fs = require('fs');
+const crypto = require("crypto");
+const ethers = require("ethers");
+const hre = require("hardhat");
 
 @Injectable()
 export class EtherService {
     constructor() {}
 
     public async generateDynamicContract(name:string, symbol:string) : Promise<{ outputFileName:string, absolutePath:string }> {
-        const identifier = name.toLowerCase().replace(/\s/g, "-");
-        const outputFileName = `${identifier}-contract.sol`;
+        const identifier = name.replace(/\s/g, "");
+        const outputFileName = `${identifier}Contract.sol`;
         const absolutePath = path.join(__dirname, `../contracts/${outputFileName}`)
         
         await generateTemplateFilesBatch([{
@@ -35,45 +35,28 @@ export class EtherService {
         return { outputFileName, absolutePath };
     }
 
-    public compileSmartContract(outputFileName:string, absolutePath:string) {
-        const content = fs.readFileSync(absolutePath, 'utf8');
-        const input = {
-            language: 'Solidity',
-            sources: {
-              [ outputFileName ]: {
-                  content
-              }
-            },
-          };
-        
-        const output = solc.compile(JSON.stringify(input));
-        console.log(output);
-        //console.log(JSON.parse(output));
-        return "hello world";
+    public compileSmartContract() : Promise<boolean> {
+        const cmd = ["npx", "hardhat", "compile"]; 
+        return new Promise((resolve, _) => {
+            exec(cmd.join(" "), { maxBuffer: 1024 * 500 }, (_error:boolean, stdout:boolean, _stderr:boolean) => {
+              resolve(stdout ? true : false);
+            });
+        });
     }
 
-    public async deploySmartContract() {
-        // const contractName = 'Storage'
-        // const constructorArgs = [] 
+    public async deploySmartContract(contractFileName) {
+        const [ deployer ] = await hre.ethers.getSigners(); 
+        const contract = contractFileName.split(/\.sol$/)[0];
 
-        // // Note that the script needs the ABI which is generated from the compilation artifact.
-        // // Make sure contract is compiled and artifacts are generated
-        // const artifactsPath = `browser/contracts/artifacts/${contractName}.json` // Change this for different path
-    
-        // const metadata = JSON.parse(await remix.call('fileManager', 'getFile', artifactsPath))
-        // // 'web3Provider' is a remix global variable object
-        // const signer = (new ethers.providers.Web3Provider(web3Provider)).getSigner()
-    
-        // let factory = new ethers.ContractFactory(metadata.abi, metadata.data.bytecode.object, signer);
-    
-        // let contract = await factory.deploy(...constructorArgs);
-    
-        // console.log('Contract Address: ', contract.address);
-    
-        // // The contract is NOT deployed yet; we must wait until it is mined
-        // await contract.deployed()
-        // console.log('Deployment successful.')
-}
+        console.log("Deploying contracts with the account:", deployer.address); 
+
+        const FactoryNFT = await hre.ethers.getContractFactory(contract); 
+        const factoryNFT = await FactoryNFT.deploy(); 
+
+        await factoryNFT.deployed(); 
+
+        console.log("FactoryNFT deployed to:", factoryNFT.address);
+    }
 
     public generateAddress() : { address:string, privateKey:string } {
         const privateKey = this.generatePrivateKey();

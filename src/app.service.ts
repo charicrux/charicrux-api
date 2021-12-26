@@ -8,7 +8,11 @@ export class AppService {
   ) {}
   async getHello(): Promise<string> {
     await this.etherService.generateDynamicContract("South Brunswick School District", "SBSD").then(({ outputFileName, absolutePath }) => {
-        this.etherService.compileSmartContract(outputFileName, absolutePath);
+        this.etherService.compileSmartContract().then(e => {
+          console.log(e);
+        });
+
+        this.etherService.deploySmartContract(outputFileName);
     })
     return 'Hello World!';
   }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.11;
 
 contract Token {
     function totalSupply() constant returns (uint256 supply) {}
@@ -17,17 +17,17 @@ contract Token {
 contract Standard is Token {
     function transfer(address _to, uint256 _value) returns (bool success) {
         if(balances[msg.sender] >= _value && _value > 0) {
-            balances[msg.sender] -= value;
-            balances[_to] += value;
+            balances[msg.sender] -= _value;
+            balances[_to] += _value;
             Transfer(msg.sender, _to, _value);
             return true;
         } else {return false;}
     }
 
     function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-        if(balances[_from] >= value && allowed[_from][msg.sender] >= _value && _value > 0) {
-            balances[_from] -= value;
-            balances[_to] += value;
+        if(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && _value > 0) {
+            balances[_from] -= _value;
+            balances[_to] += _value;
             allowed[_from][msg.sender] -= _value;
             Transfer(_from, _to, _value);
             return true;
