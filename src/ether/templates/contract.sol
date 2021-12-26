@@ -1,4 +1,3 @@
-// __symbol__
 pragma solidity ^0.4.4;
 
 contract Token {
@@ -57,8 +56,8 @@ contract SchoolToken is Standard {
     function SchoolToken() {
         balances[msg.sender] = 100000;
         totalSupply = 100000;
-        name = __name__;
-        symbol = __symbol__;
+        name = "__name__";
+        symbol = "__symbol__";
         decimals = 18;
     }
 

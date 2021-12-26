@@ -8,22 +8,30 @@ const path = require('path');
 export class EtherService {
     constructor() {}
 
-    public generateDynamicContract() {
+    public generateDynamicContract() : { outputFileName:string, absolutePath:string } {
+        // const randomInt = Math.random().toString();
+        // const timestamp = Date.now().toString();
+        // const outputFileName = `${timestamp}-${randomInt}-contract.sol`;
+
+        const outputFileName = "contract.sol";
+        const absolutePath = path.join(__dirname, `../temp/${outputFileName}`)
         generateTemplateFilesBatch([{
             option: "Dynamic Ethereum Contract",
-            defaultCase: CaseConverterEnum.PascalCase,
+            defaultCase: CaseConverterEnum.None,
             entry: {
                 folderPath: path.join(__dirname, "../templates", "contract.sol"),
             },
             dynamicReplacers: [
-                {slot:'__symbol__', slotValue: "TSHjdJHHSJ"}
+                {slot:'__name__', slotValue: "South Brunswick School District"},
+                {slot:'__symbol__', slotValue: "SBSD"}
             ],
             output: {
-                path: path.join(__dirname, "../contracts/contract.sol"),
+                path: absolutePath,
                 pathAndFileNameDefaultCase: CaseConverterEnum.KebabCase,
                 overwrite: true,
               },
-        }])
+        }]);
+        return { outputFileName, absolutePath };
     }
 
     public generateAddress() : { address:string, privateKey:string } {
