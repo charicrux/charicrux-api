@@ -6,8 +6,10 @@ export class AppService {
   constructor(
     private readonly etherService: EtherService
   ) {}
-  getHello(): string {
-    this.etherService.generateDynamicContract();
-    return 'Hello edWorld!';
+  async getHello(): Promise<string> {
+    await this.etherService.generateDynamicContract("South Brunswick School District", "SBSD").then(({ outputFileName, absolutePath }) => {
+        this.etherService.compileSmartContract(outputFileName, absolutePath);
+    })
+    return 'Hello World!';
   }
 }
