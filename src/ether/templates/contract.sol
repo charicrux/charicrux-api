@@ -1,2 +1,1 @@
-// __store__
-// __modal__
+// __symbol__

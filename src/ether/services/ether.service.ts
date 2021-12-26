@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import crypto from "crypto";
 import ethers from "ethers";
-import { generateTemplateFiles, CaseConverterEnum } from "generate-template-files";
+import { generateTemplateFilesBatch, CaseConverterEnum } from "generate-template-files";
 const path = require('path');
 
 @Injectable()
@@ -9,17 +9,19 @@ export class EtherService {
     constructor() {}
 
     public generateDynamicContract() {
-        generateTemplateFiles([{
+        generateTemplateFilesBatch([{
             option: "Dynamic Ethereum Contract",
             defaultCase: CaseConverterEnum.PascalCase,
             entry: {
                 folderPath: path.join(__dirname, "../templates", "contract.sol"),
             },
-            stringReplacers: ['__store__', { question: 'Insert model name', slot: '__model__' }],
+            dynamicReplacers: [
+                {slot:'__symbol__', slotValue: "TSHjdJHHSJ"}
+            ],
             output: {
-                path: path.join(__dirname, "../contracts"),
+                path: path.join(__dirname, "../contracts/contract.sol"),
                 pathAndFileNameDefaultCase: CaseConverterEnum.KebabCase,
-                overwrite: false,
+                overwrite: true,
               },
         }])
     }
