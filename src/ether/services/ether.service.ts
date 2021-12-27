@@ -1,10 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { generateTemplateFilesBatch, CaseConverterEnum } from "generate-template-files";
+import config from "../../config/index";
+const HDWalletProvider = require("truffle-hdwallet-provider")
 const { exec } = require("child_process");
 const path = require('path');
 const crypto = require("crypto");
 const ethers = require("ethers");
-const hre = require("hardhat");
+const Web3 = require("web3");
+const solc = require("solc");
+const fs = require('fs');
 
 @Injectable()
 export class EtherService {
@@ -35,7 +39,18 @@ export class EtherService {
         return { outputFileName, absolutePath };
     }
 
-    public compileSmartContract() : Promise<boolean> {
+    public compileSmartContractWithSolidity(absolutePath:string) : { interface:any, bytecode:any } {
+        const identifer = "OrganizationToken";
+        const source = fs.readFileSync(absolutePath, "utf8");
+        return solc.compile(source, 1).contracts[`:${identifer}`];
+
+        // Once Contract is Compiled
+
+        // 1. Need to Upload to S3 Bucket for Record
+        // 2. Need to Delete Smart Contract 
+    }
+
+    public compileSmartContractWithHardhat() : Promise<boolean> {
         const cmd = ["npx", "hardhat", "compile"]; 
         return new Promise((resolve, _) => {
             exec(cmd.join(" "), { maxBuffer: 1024 * 500 }, (_error:boolean, stdout:boolean, _stderr:boolean) => {
@@ -44,18 +59,28 @@ export class EtherService {
         });
     }
 
-    public async deploySmartContract(contractFileName) {
-        const [ deployer ] = await hre.ethers.getSigners(); 
-        const contract = contractFileName.split(/\.sol$/)[0];
+    public async deploySmartContract(contractInterface, bytecode) {
+        // Before Deployment
+        // 1. Need to Verify Token Doesn't Already Exist
 
-        console.log("Deploying contracts with the account:", deployer.address); 
+        const provider = new HDWalletProvider(
+            config.cryptoRootWallet.mnemonic,
+            config.etherNetwork
+          );
 
-        const FactoryNFT = await hre.ethers.getContractFactory(contract); 
-        const factoryNFT = await FactoryNFT.deploy(); 
+        const web3 = new Web3(provider);
+        const [ currentAccount ] = await web3.eth.getAccounts();
 
-        await factoryNFT.deployed(); 
+        const result = await new web3.eth
+            .Contract(JSON.parse(contractInterface))
+            .deploy({ data: "0x" + bytecode})
+            .send({ gas: "1000000", from: currentAccount });
 
-        console.log("FactoryNFT deployed to:", factoryNFT.address);
+        console.log("Contract deployed to", result.options.address); 
+        
+        // Once Contract is Deployed
+        // 1. Need to Save Contract Address
+        // 2. Need to Save Contract Version
     }
 
     public generateAddress() : { address:string, privateKey:string } {
