@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { EtherService } from './ether/services/ether.service';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello edWorld!';
+  constructor(
+    private readonly etherService: EtherService
+  ) {}
+  async getHello(): Promise<string> {
+    return 'Hello World!';
   }
 }
