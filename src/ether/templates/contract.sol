@@ -47,7 +47,7 @@ contract Standard is Token {
     uint256 public totalSupply;
 }
 
-contract SchoolToken is Standard {
+contract OrganizationToken is Standard {
     function () {throw;}
 
     string public name;
@@ -55,7 +55,7 @@ contract SchoolToken is Standard {
     uint8 public decimals;
     string public version = 'V1.0';
 
-    function SchoolToken() {
+    function OrganizationToken() {
         balances[msg.sender] = 100000;
         totalSupply = 100000;
         name = "__name__";
