@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { generateTemplateFilesBatch, CaseConverterEnum } from "generate-template-files";
 import config from "../../config/index";
+import { promises as fs } from "fs";
 const HDWalletProvider = require("truffle-hdwallet-provider")
 const { exec } = require("child_process");
 const path = require('path');
@@ -8,7 +9,6 @@ const crypto = require("crypto");
 const ethers = require("ethers");
 const Web3 = require("web3");
 const solc = require("solc");
-const fs = require('fs');
 
 @Injectable()
 export class EtherService {
@@ -39,9 +39,9 @@ export class EtherService {
         return { outputFileName, absolutePath };
     }
 
-    public compileSmartContractWithSolidity(absolutePath:string) : { interface:any, bytecode:any } {
+    public async compileSmartContractWithSolidity(absolutePath:string) : Promise<{ interface:any, bytecode:any }> {
         const identifer = "OrganizationToken";
-        const source = fs.readFileSync(absolutePath, "utf8");
+        const source = await fs.readFile(absolutePath, "utf8");
         return solc.compile(source, 1).contracts[`:${identifer}`];
 
         // Once Contract is Compiled
@@ -60,6 +60,7 @@ export class EtherService {
     }
 
     public async deploySmartContract(contractInterface, bytecode) {
+        console.log("Deploying Contract...");
         // Before Deployment
         // 1. Need to Verify Token Doesn't Already Exist
 
