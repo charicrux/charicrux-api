@@ -4,20 +4,24 @@ import * as bcrypt from 'bcrypt';
 import { UserService } from "src/user/user.service";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { SignOptions } from 'jsonwebtoken';
+import { WalletService } from "src/wallet/wallet.service";
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
         private readonly userService: UserService,
+        private readonly walletService: WalletService,
     ) {}
 
     public async createUser({ pass, ...fields} : CreateUserDTO) {
         const hashedPassword = await this.hashPassword(pass);
         const response = await this.userService.create({ pass:hashedPassword, ...fields }).catch(_ => null);
-        
         if (!response) return new InternalServerErrorException('Failed to Create Account');
-        const clientObject = await this.clientObject(response._id);
+    
+        const { _id:userId } = response; 
+        await this.walletService.create(userId).catch(e => console.log(e));
+        const clientObject = await this.clientObject(userId);
         return clientObject;
     }
 

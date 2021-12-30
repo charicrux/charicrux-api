@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import config from "src/config";
 import { UserModule } from "src/user/user.module";
+import { WalletModule } from "src/wallet/wallet.module";
 import { AuthResolver } from "./auth.resolver";
 import { AuthService } from "./auth.service";
 
@@ -14,6 +15,7 @@ import { AuthService } from "./auth.service";
             },
         }),
         UserModule,
+        WalletModule,
     ],
     exports: [ AuthResolver ],
     providers: [ AuthResolver, AuthService ],

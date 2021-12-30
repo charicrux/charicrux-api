@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model  } from "mongoose";
 import { CreateUserDTO } from "src/auth/dto/create-user.dto";
-import { contructUserAggregationPipeline } from "./aggregations/user.aggregation";
-import { IUserModel } from "./interfaces/user.interface";
+import { contructUserAggregationPipeline } from "../aggregations/user.aggregation";
+import { IUserModel } from "../interfaces/user.interface";
 
 
 @Injectable()
