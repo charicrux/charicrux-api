@@ -14,9 +14,10 @@ export class AuthService {
         private readonly walletService: WalletService,
     ) {}
 
-    public async createUser({ pass, ...fields} : CreateUserDTO) {
+    public async createUser({ pass, email:rawEmail, ...fields } : CreateUserDTO) {
+        const email = rawEmail.toLowerCase();
         const hashedPassword = await this.hashPassword(pass);
-        const response = await this.userService.create({ pass:hashedPassword, ...fields }).catch(_ => null);
+        const response = await this.userService.create({ pass:hashedPassword, email, ...fields }).catch(_ => null);
         if (!response) return new InternalServerErrorException('Failed to Create Account');
     
         const { _id:userId } = response; 
