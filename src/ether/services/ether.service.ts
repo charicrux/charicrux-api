@@ -14,6 +14,16 @@ const solc = require("solc");
 export class EtherService {
     constructor() {}
 
+    public async sendEther() {}
+
+    public async getWalletBalance(privateKey) {
+        const customHttpProvider = new ethers.providers.JsonRpcProvider(config.etherNetwork);
+        const wallet = new ethers.Wallet(privateKey, customHttpProvider);
+        const balance = await wallet.getBalance(); 
+        const ether = Web3.utils.fromWei(balance.toString(), "ether" );
+        return ether;
+    };
+
     public async generateDynamicContract(name:string, symbol:string) : Promise<{ outputFileName:string, absolutePath:string }> {
         const identifier = name.replace(/\s/g, "");
         const outputFileName = `${identifier}Contract.sol`;
@@ -74,7 +84,7 @@ export class EtherService {
 
         const result = await new web3.eth
             .Contract(JSON.parse(contractInterface))
-            .deploy({ data: "0x" + bytecode})
+            .deploy({ data: "0x" + bytecode} as any)
             .send({ gas: "1000000", from: currentAccount });
 
         console.log("Contract deployed to", result.options.address); 
@@ -85,8 +95,9 @@ export class EtherService {
     }
 
     public generateAddress() : { address:string, privateKey:string } {
+        const customHttpProvider = new ethers.providers.JsonRpcProvider(config.etherNetwork);
         const privateKey = this.generatePrivateKey();
-        const { address } = new ethers.Wallet(privateKey);
+        const { address } = new ethers.Wallet(privateKey, customHttpProvider);
         return { address, privateKey };
     }
 

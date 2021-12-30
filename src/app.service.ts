@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { EtherService } from './ether/services/ether.service';
+import { Query, Resolver } from '@nestjs/graphql';
 
 @Injectable()
+@Resolver()
 export class AppService {
-  constructor(
-    private readonly etherService: EtherService
-  ) {}
-  async getHello(): Promise<string> {
-    // await this.etherService.generateDynamicContract("South Brunswick School District Test", "SBSDT").then(async ({ absolutePath, outputFileName }) => {
-    //   const { bytecode, interface:contractInterface } = await this.etherService.compileSmartContractWithSolidity(absolutePath)
-    //   this.etherService.deploySmartContract(contractInterface, bytecode);
-    // });
-
-    return 'Hello World!';
+  constructor() {}
+  @Query(() => String)
+  async getRoot(): Promise<string> {
+    //const privateKeyExample = "0x110526fdbe3fc57bc97044f156b71d2362c2d4976b8a3d27a07e2f525c038528";
+    //const balance = await this.etherService.getWalletBalance(privateKeyExample); // config.cryptoRootWallet.privateKey
+    //console.log(balance);
+    return 'All Systems Operational.';
   }
 }
