@@ -4,7 +4,7 @@ pragma solidity ^0.4.11;
 
 contract Token {
     function totalSupply() constant returns (uint256 supply) {}
-    function getBalance(address _owner) constant returns (uint256 balance) {}
+    function balanceOf(address _owner) constant returns (uint256 balance) {}
     function transfer(address _to, uint256 _value) returns (bool success) {}
     function transferFrom(address _to, address _from, uint256 _value) returns (bool success) {}
     function approve(address _spender, uint256 _value) returns (bool success) {}
@@ -34,7 +34,7 @@ contract Standard is Token {
         } else {return false;}
     }
 
-    function getBalance(address _owner) constant returns (uint256 balance) {return balances[_owner];}
+    function balanceOf(address _owner) constant returns (uint256 balance) {return balances[_owner];}
     function approve(address _spender, uint256 _value) returns (bool success) {
         allowed[msg.sender][_spender] = _value;
         Approval(msg.sender, _spender, _value);
