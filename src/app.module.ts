@@ -7,6 +7,7 @@ import config from "./config";
 import { GraphQLModule } from '@nestjs/graphql';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { OrganizationsModule } from './organizations/organizations.module';
 const { join } = require('path');
 
 const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -30,6 +31,7 @@ const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'develop
     MongooseModule.forRoot(config.mongodb.uri, config.mongodb.options),
     EtherModule,
     AuthModule,
+    OrganizationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

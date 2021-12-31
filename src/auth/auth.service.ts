@@ -43,4 +43,11 @@ export class AuthService {
     private async generateAccessToken(data, options?: SignOptions) {
         return this.jwtService.sign(data, options);
     }
+
+    private async validateUserPassword(
+        password: string,
+        hashedPassword: string,
+      ): Promise<boolean> {
+        return await bcrypt.compare(password, hashedPassword);
+    }
 }

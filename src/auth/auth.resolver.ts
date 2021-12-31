@@ -1,10 +1,8 @@
-import { Injectable } from "@nestjs/common";
 import { Args, Mutation, Resolver } from "@nestjs/graphql";
 import { AggregatedUser } from "src/user/models/aggregated-user.model";
 import { AuthService } from "./auth.service";
 import { CreateUserDTO } from "./dto/create-user.dto";
 
-@Injectable()
 @Resolver()
 export class AuthResolver {
     constructor(
