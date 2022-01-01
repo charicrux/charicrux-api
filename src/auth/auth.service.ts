@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { UserService } from "src/user/user.service";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { SignOptions } from 'jsonwebtoken';

@@ -23,6 +23,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@metamask/eth-sig-util": "^4.0.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/graphql": "^9.1.2",
@@ -34,7 +35,7 @@
     "@types/nconf": "^0.10.1",
     "apollo-server-core": "^3.5.0",
     "apollo-server-express": "^3.5.0",
-    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
     "class-validator": "^0.13.2",
     "crypto": "^1.0.1",
     "dotenv": "^10.0.0",
@@ -47,10 +48,10 @@
     "lodash": "^4.17.21",
     "nconf": "^0.11.3",
     "reflect-metadata": "^0.1.13",
-    "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "solc": "^0.4.26",
-    "truffle-hdwallet-provider": "^1.0.17"
+    "truffle-hdwallet-provider": "^1.0.17",
+    "web3": "^1.6.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
