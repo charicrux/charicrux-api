@@ -1,0 +1,32 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+      {
+        "name": "prod",
+        "image": "{$AWS_ACCOUNT_ID}.dkr.ecr.{$AWS_DEFAULT_REGION}.amazonaws.com/charicrux-api-prod",
+        "hostname": "prod",
+        "essential": true,
+        "memory": 512,
+        "portMappings": [
+          {
+            "hostPort": 3001,
+            "containerPort": 3001
+          }
+        ]
+      },
+      {
+        "name": "nginx",
+        "image": "{$AWS_ACCOUNT_ID}.dkr.ecr.{$AWS_DEFAULT_REGION}.amazonaws.com/charicrux-api-nginx",
+        "hostname": "nginx",
+        "essential": true,
+        "portMappings": [ 
+          {
+            "hostPort": 80,
+            "containerPort": 80
+          }
+        ],
+        "links": ["prod"],
+        "memory": 512
+      }
+    ]
+  }
