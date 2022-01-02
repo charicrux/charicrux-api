@@ -9,10 +9,10 @@ services:
       ports:
         - 27017:27017
       networks:
-        - nesjs-network
+        - nestjs-network
       restart: always 
     dev:
-        container_name: nestjs_api_dev
+        container_name: dev
         image: nestjs-api-dev:1.0.0
         build:
             context: .
@@ -23,7 +23,7 @@ services:
             - 3000:3000
             - 9229:9229
         networks:
-            - nesjs-network
+            - nestjs-network
         volumes:
             - .:/usr/src/app
             - /usr/src/app/node_modules
@@ -31,7 +31,7 @@ services:
         depends_on: 
           - mongodb
     prod:
-        container_name: nestjs_api_prod
+        container_name: prod
         image: nestjs-api-prod:1.0.0
         build:
             context: .
@@ -41,15 +41,26 @@ services:
             - MONGODB_URI=$MONGODB_URI
             - JWT_SECRET=$JWT_SECRET
         command: npm run start:prod
+        expose:
+            - 3001
         ports:
             - 3001:3001
             - 9230:9230
         networks:
-            - nesjs-network
+            - nestjs-network
         volumes:
             - .:/usr/src/app
             - /usr/src/app/node_modules
         restart: unless-stopped
-
+    nginx: 
+        container_name: nginx
+        networks:
+            - nestjs-network
+        depends_on: 
+            - prod
+        ports: 
+            - "80:80"
+        build:
+            context: ./nginx
 networks:
-    nesjs-network:
+    nestjs-network:

@@ -16,7 +16,9 @@ const config = {
     },
     port: process.env.PORT || 3001,
     origin: {
-        whitelist: []
+        whitelist: [
+            "http://localhost",
+        ]
     },
     etherNetwork: process.env.ROPSTEN_NETWORK_URL
 }
