@@ -25,6 +25,8 @@ RUN npm install --only=production
 
 COPY . .
 
+RUN npm install glob rimraf
+
 RUN npm run build
 
 # COPY --from=development /usr/src/app/dist ./dist
