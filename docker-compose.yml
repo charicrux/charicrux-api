@@ -1,38 +1,9 @@
 version: '3.8'
 
 services:
-    mongodb:
-      image: mongo:latest
-      container_name: mongodb
-      volumes:
-        - ./database:/data/db
-      ports:
-        - 27017:27017
-      networks:
-        - nestjs-network
-      restart: always 
-    dev:
-        container_name: dev
-        image: nestjs-api-dev:1.0.0
-        build:
-            context: .
-            target: development
-            dockerfile: ./Dockerfile
-        command: npm run start:debug
-        ports:
-            - 3000:3000
-            - 9229:9229
-        networks:
-            - nestjs-network
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
-        restart: unless-stopped
-        depends_on: 
-          - mongodb
     prod:
         container_name: prod
-        image: nestjs-api-prod:1.0.0
+        image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/charicrux-api-prod
         build:
             context: .
             target: production
@@ -53,6 +24,7 @@ services:
             - /usr/src/app/node_modules
         restart: unless-stopped
     nginx: 
+        image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/charicrux-api-nginx
         container_name: nginx
         networks:
             - nestjs-network
