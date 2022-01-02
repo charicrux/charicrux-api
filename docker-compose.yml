@@ -42,8 +42,8 @@ services:
             - JWT_SECRET=$JWT_SECRET
         command: npm run start:prod
         ports:
-            - 3000:3000
-            - 9229:9229
+            - 3001:3001
+            - 9230:9230
         networks:
             - nesjs-network
         volumes:
