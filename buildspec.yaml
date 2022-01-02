@@ -18,3 +18,4 @@ artifacts:
   files:
     - 'Dockerrun.aws.json'
     - 'docker-compose.yml'
+    - 'nginx/**'
