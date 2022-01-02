@@ -37,6 +37,9 @@ services:
             context: .
             target: production
             dockerfile: ./Dockerfile
+        environment:
+            - MONGODB_URI=$MONGODB_URI
+            - JWT_SECRET=$JWT_SECRET
         command: npm run start:prod
         ports:
             - 3000:3000
