@@ -4,11 +4,24 @@ services:
     prod:
         container_name: prod
         image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/charicrux-api-prod
+        build:
+            context: .
+            target: production
+            dockerfile: ./Dockerfile
+        environment:
+            - MONGODB_URI=$MONGODB_URI
+            - JWT_SECRET=$JWT_SECRET
+        command: npm run start:prod
+        expose:
+            - 3001
         ports:
             - 3001:3001
             - 9230:9230
         networks:
             - nestjs-network
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
         restart: unless-stopped
     nginx: 
         image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/charicrux-api-nginx
@@ -19,5 +32,7 @@ services:
             - prod
         ports: 
             - "80:80"
+        build:
+            context: ./nginx
 networks:
     nestjs-network:
