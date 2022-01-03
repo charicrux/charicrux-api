@@ -7,6 +7,9 @@ services:
         ports:
             - 3001:3001
             - 9230:9230
+        environment:
+            - MONGODB_URI=$MONGODB_URI
+            - JWT_SECRET=$JWT_SECRET
         networks:
             - nestjs-network
         restart: unless-stopped
