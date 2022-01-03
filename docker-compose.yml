@@ -33,6 +33,6 @@ services:
         ports: 
             - "80:80"
         build:
-            context: ./.platform/nginx
+            context: ./nginx
 networks:
     nestjs-network:
