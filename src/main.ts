@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import * as helmet from 'helmet';
 import * as rateLimit from 'express-rate-limit';
 import config from "./config";
+import * as morgan from 'morgan';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +25,7 @@ async function bootstrap() {
       origin: [config?.origin?.whitelist],
     });
   }
+  app.use(morgan("tiny"))
 
   await app.listen(config.port);
 }

@@ -9,4 +9,4 @@
 
 # Run MongoDB Service Locally
 
-1. docker-compose --file=docker-compose-dev.yml mongodb
+1. docker-compose --file=docker-compose-dev.yml up mongodb

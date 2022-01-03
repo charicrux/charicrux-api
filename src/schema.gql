@@ -18,8 +18,14 @@ input CreateUserDTO {
   pass: String!
 }
 
+input LoginUserDTO {
+  email: String!
+  pass: String!
+}
+
 type Mutation {
   createUser(input: CreateUserDTO!): AggregatedUser!
+  loginUser(input: LoginUserDTO!): AggregatedUser!
 }
 
 type Organization {

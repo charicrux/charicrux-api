@@ -13,6 +13,10 @@ export class UserRepository {
         private readonly userModel: Model<IUserModel>,
     ) {}
 
+    public async find<T,>(query:T) {
+        return await this.userModel.find(query);
+    }
+
     public async create(input:CreateUserDTO) {
         return await this.userModel.create(input);
     }

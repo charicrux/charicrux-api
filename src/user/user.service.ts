@@ -8,6 +8,10 @@ export class UserService {
         private readonly userRepo:UserRepository
     ) {}
 
+    public async findByEmail(email:string) {
+        return await this.userRepo.find<{ email: string }>({ email });
+    }
+
     public async create(fields : CreateUserDTO) {
         return await this.userRepo.create(fields);
     }

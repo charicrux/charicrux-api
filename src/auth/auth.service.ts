@@ -1,10 +1,12 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcryptjs';
 import { UserService } from "src/user/user.service";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { SignOptions } from 'jsonwebtoken';
 import { WalletService } from "src/wallet/wallet.service";
+import { LoginUserDTO } from "./dto/login-user.dto";
+import { IUserModel } from "src/user/interfaces/user.interface";
 
 @Injectable()
 export class AuthService {
@@ -24,6 +26,14 @@ export class AuthService {
         await this.walletService.create(userId).catch(e => console.log(e));
         const clientObject = await this.clientObject(userId);
         return clientObject;
+    }
+
+    public async loginUser({ email:rawEmail, pass } : LoginUserDTO) {
+        const email = rawEmail.toLowerCase();
+        const [ user ] : IUserModel[] = await this.userService.findByEmail(email);
+        if (!user) return new BadRequestException("No Such User Exists with the Provided Email.");
+        else if (!await this.validateUserPassword(pass, user.pass)) return new ForbiddenException("Resource Forbidden");
+        return await this.clientObject(user._id);
     }
 
     private async clientObject(_id:string) {
