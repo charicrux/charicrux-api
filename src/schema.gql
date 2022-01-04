@@ -8,6 +8,8 @@ type AggregatedUser {
   email: String!
   firstName: String
   lastName: String
+  organization: Organization
+  organizationId: ID!
   pass: String!
   roles: [String!]!
   status: String!
@@ -15,6 +17,7 @@ type AggregatedUser {
 
 input CreateUserDTO {
   email: String!
+  organizationId: ID!
   pass: String!
 }
 

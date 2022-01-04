@@ -8,6 +8,7 @@ export interface IUserModel {
     firstName?: string;
     lastName?: string; 
     avatar?:string;
+    organizationId?: string,
     status?: EAccountStatus,
     emailVerified?: boolean,
 }

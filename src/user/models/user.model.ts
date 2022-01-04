@@ -24,4 +24,7 @@ export class User {
 
   @Field(() => String)
   status: EAccountStatus
+
+  @Field(() => ID!)
+  organizationId: string;
 }

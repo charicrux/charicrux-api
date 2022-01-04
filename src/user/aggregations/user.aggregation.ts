@@ -5,7 +5,18 @@ export const contructUserAggregationPipeline = (_id:string) => {
         {
             $match: {
                 _id: new mongoose.Types.ObjectId(_id),
+            },
+        },
+        {
+            $lookup: {
+                from: "organizations",
+                localField: "organizationId",
+                foreignField: "_id",
+                as: "organization",
             }
+        },
+        {
+            $unwind: { path: "$organization", preserveNullAndEmptyArrays: true }
         }
     ]
 };

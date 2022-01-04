@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
     firstName: { type: String, required: false, default: null },
     lastName: { type: String, required: false, default: null },
     roles: { type: Array, required: true, default: [ ERoles.USER ]},
+    organizationId: { type: mongoose.Types.ObjectId, required: true },
     status: { type: String, required: true, default: EAccountStatus.ACTIVE },
     emailVerified: { type: Boolean, required: false, default: false },
 
