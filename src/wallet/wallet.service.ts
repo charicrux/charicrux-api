@@ -10,6 +10,11 @@ export class WalletService {
         private readonly walletRepo: WalletRepository,
     ) {}
 
+    public async getBalance(userId:string) {
+        const { privateKey } = await this.walletRepo.findByUserId(userId);
+        return await this.etherService.getWalletBalance(privateKey);
+    }
+
     public async create(userId:mongoose.Types.ObjectId) {
         const { address, privateKey } = this.etherService.generateAddress();
         return this.walletRepo.create({ userId, address, privateKey });

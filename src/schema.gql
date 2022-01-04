@@ -40,4 +40,5 @@ type Organization {
 type Query {
   getOrganizations(query: String!): [Organization!]!
   getRoot: String!
+  getWalletBalance: Float!
 }
