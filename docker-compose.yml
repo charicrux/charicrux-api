@@ -10,6 +10,7 @@ services:
         environment:
             - MONGODB_URI=$MONGODB_URI
             - JWT_SECRET=$JWT_SECRET
+            - ETHER_NETWORK_URL=$ETHER_NETWORK_URL
         networks:
             - nestjs-network
         restart: unless-stopped

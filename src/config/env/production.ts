@@ -20,7 +20,7 @@ const config = {
             "http://localhost",
         ]
     },
-    etherNetwork: process.env.ROPSTEN_NETWORK_URL
+    etherNetwork: process.env.ETHER_NETWORK_URL
 }
 
 module.exports = config; 

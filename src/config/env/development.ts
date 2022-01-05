@@ -15,7 +15,7 @@ const config = {
         jwtExpire: (60 * 60 * 24) * 30,
     },
     port: 3001,
-    etherNetwork: process.env.ROPSTEN_NETWORK_URL
+    etherNetwork: process.env.ETHER_NETWORK_URL
 }
 
 module.exports = config; 
