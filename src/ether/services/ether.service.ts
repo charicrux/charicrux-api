@@ -9,6 +9,7 @@ const crypto = require("crypto");
 const ethers = require("ethers");
 const Web3 = require("web3");
 const solc = require("solc");
+import memfs from "memfs";
 
 @Injectable()
 export class EtherService {

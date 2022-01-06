@@ -13,6 +13,7 @@ type AggregatedUser {
   pass: String!
   roles: [String!]!
   status: String!
+  wallet: Wallet!
 }
 
 input CreateUserDTO {
@@ -41,4 +42,9 @@ type Query {
   getOrganizations(query: String!): [Organization!]!
   getRoot: String!
   getWalletBalance: Float!
+}
+
+type Wallet {
+  _id: ID!
+  address: String!
 }
