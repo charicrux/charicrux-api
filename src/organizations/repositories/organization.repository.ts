@@ -14,6 +14,10 @@ export class OrganizationRepository {
         return await this.organizationModel.find().limit(10);
     }
 
+    async findOrganizationById(_id:string) {
+        return await this.organizationModel.findOne({ _id });
+    }
+
     async getOrganizationByQuery(query:string) {
         return await this.organizationModel.find({
             $text: { 

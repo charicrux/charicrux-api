@@ -15,6 +15,7 @@ import { OrganizationSchema } from "./schema/organization.schema";
         OrganizationsResolver, 
         OrganizationsService, 
         OrganizationRepository 
-    ]
+    ],
+    exports: [ OrganizationRepository ]
 })
 export class OrganizationsModule {};

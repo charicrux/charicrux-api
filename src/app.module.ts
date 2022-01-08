@@ -8,6 +8,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { TokenModule } from './token/token.module';
+import { AWSModule } from './aws/aws.module';
 const { join } = require('path');
 
 const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -32,6 +34,8 @@ const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'develop
     EtherModule,
     AuthModule,
     OrganizationsModule,
+    TokenModule,
+    AWSModule,
   ],
   controllers: [AppController],
   providers: [AppService],

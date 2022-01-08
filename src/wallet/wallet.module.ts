@@ -18,13 +18,13 @@ import { WalletService } from "./wallet.service";
               expiresIn: config.jwt.jwtExpire,
             },
         }),
-        EtherModule,
+        forwardRef(() => EtherModule),
         forwardRef(() => UserModule),
         MongooseModule.forFeature([
             { name: 'wallet', schema: WalletSchema }
         ]),
     ],
-    exports: [ WalletService ],
+    exports: [ WalletService, WalletRepository ],
     providers: [ WalletService, WalletRepository, WalletResolver ]
 })
 export class WalletModule {};

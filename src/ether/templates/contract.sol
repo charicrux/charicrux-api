@@ -1,73 +1,60 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.7.0 <0.9.0;
 
-pragma solidity ^0.4.11;
+contract OrganizationToken {
 
-contract Token {
-    function totalSupply() constant returns (uint256 supply) {}
-    function balanceOf(address _owner) constant returns (uint256 balance) {}
-    function transfer(address _to, uint256 _value) returns (bool success) {}
-    function transferFrom(address _to, address _from, uint256 _value) returns (bool success) {}
-    function approve(address _spender, uint256 _value) returns (bool success) {}
-    function allowance(address _owner, address _spender) constant returns (uint256 remaining) {}
+    event Transfer(address indexed from, address indexed to, uint tokens);
+    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
 
-    event Transfer(address indexed _from, address indexed _to, uint256 _value);
-    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
-}
-
-contract Standard is Token {
-    function transfer(address _to, uint256 _value) returns (bool success) {
-        if(balances[msg.sender] >= _value && _value > 0) {
-            balances[msg.sender] -= _value;
-            balances[_to] += _value;
-            Transfer(msg.sender, _to, _value);
-            return true;
-        } else {return false;}
-    }
-
-    function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-        if(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && _value > 0) {
-            balances[_from] -= _value;
-            balances[_to] += _value;
-            allowed[_from][msg.sender] -= _value;
-            Transfer(_from, _to, _value);
-            return true;
-        } else {return false;}
-    }
-
-    function balanceOf(address _owner) constant returns (uint256 balance) {return balances[_owner];}
-    function approve(address _spender, uint256 _value) returns (bool success) {
-        allowed[msg.sender][_spender] = _value;
-        Approval(msg.sender, _spender, _value);
-        return true;
-    }
-    function allowance(address _owner, address _spender) constant returns (uint256 remaining) {return allowed[_owner][_spender];}
+    string public constant name = "__name__";
+    string public constant symbol = "__symbol__";
+    uint8 public constant decimals = 18;
 
     mapping(address => uint256) balances;
-    mapping(address => mapping(address => uint256)) allowed;
-    uint256 public totalSupply;
-}
 
-contract OrganizationToken is Standard {
-    function () {throw;}
+    mapping(address => mapping (address => uint256)) allowed;
 
-    string public name;
-    string public symbol;
-    uint8 public decimals;
-    string public version = 'V1.0';
+    uint256 totalSupply_;
 
-    function OrganizationToken() {
-        balances[msg.sender] = 100000;
-        totalSupply = 100000;
-        name = "__name__";
-        symbol = "__symbol__";
-        decimals = 18;
+     constructor(uint256 total) {
+        totalSupply_ = total;
+        balances[msg.sender] = totalSupply_;
     }
 
-    function ApproveAndCall(address _spender, uint256 _value, bytes _extraData) returns (bool success) {
-        allowed[msg.sender][_spender] = _value;
-        Approval(msg.sender, _spender, _value);
+    function totalSupply() public view returns (uint256) {
+      return totalSupply_;
+    }
 
-        if(!_spender.call(bytes4(bytes32(sha3("receiveApproval(address,uint256,address,bytes)"))), msg.sender, _value, this, _extraData)) { throw; }
+    function balanceOf(address tokenOwner) public view returns (uint) {
+        return balances[tokenOwner];
+    }
+
+    function transfer(address receiver, uint numTokens) public returns (bool) {
+        require(numTokens <= balances[msg.sender]);
+        balances[msg.sender] -= numTokens;
+        balances[receiver] += numTokens;
+        emit Transfer(msg.sender, receiver, numTokens);
+        return true;
+    }
+
+    function approve(address delegate, uint numTokens) public returns (bool) {
+        allowed[msg.sender][delegate] = numTokens;
+        emit Approval(msg.sender, delegate, numTokens);
+        return true;
+    }
+
+    function allowance(address owner, address delegate) public view returns (uint) {
+        return allowed[owner][delegate];
+    }
+
+    function transferFrom(address owner, address buyer, uint numTokens) public returns (bool) {
+        require(numTokens <= balances[owner]);
+        require(numTokens <= allowed[owner][msg.sender]);
+
+        balances[owner] -= numTokens;
+        allowed[owner][msg.sender] -= numTokens;
+        balances[buyer] += numTokens;
+        emit Transfer(owner, buyer, numTokens);
         return true;
     }
 }
