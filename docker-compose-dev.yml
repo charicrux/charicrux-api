@@ -41,6 +41,10 @@ services:
             - MONGODB_URI=$MONGODB_URI
             - JWT_SECRET=$JWT_SECRET
             - ETHER_NETWORK_URL=$ETHER_NETWORK_URL
+            - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+            - SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY
+            - METAMASK_WALLET_MNEMONIC=$METAMASK_WALLET_MNEMONIC
+            - METAMASK_WALLET_PRIVATE_KEY=$METAMASK_WALLET_PRIVATE_KEY
         command: npm run start:prod
         expose:
             - 3001
