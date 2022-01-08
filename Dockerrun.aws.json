@@ -6,7 +6,7 @@
         "image": "{$AWS_ACCOUNT_ID}.dkr.ecr.{$AWS_DEFAULT_REGION}.amazonaws.com/charicrux-api-prod",
         "hostname": "prod",
         "essential": true,
-        "memory": 512,
+        "memory": 1024,
         "portMappings": [
           {
             "hostPort": 3001,
