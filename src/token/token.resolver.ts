@@ -12,10 +12,17 @@ export class TokenResolver {
         private readonly tokenService: TokenService
     ) {}
 
+    @UseGuards(AuthGuard)
     @Query(() => AggregatedToken)
     public async getAggregatedToken(@Args("input") input: GetAggregatedTokenDTO) {
         return await this.tokenService.getAggregatedToken(input); 
     }
+
+    @Query(() => Boolean)
+    public async getTokenBalance() {
+        this.tokenService.getTokenBalance();
+        return true; 
+    }    
 
     @UseGuards(AuthGuard)
     @Mutation(() => Boolean)

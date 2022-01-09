@@ -3,6 +3,7 @@
 # ------------------------------------------------------
 
 type AggregatedToken {
+  address: String
   name: String!
   organizationId: ID!
   symbol: String!
@@ -63,6 +64,7 @@ type Query {
   getGasEstimate(input: GetGasEstimateDTO!): GetGasEstimateModel!
   getOrganizations(query: String!): [Organization!]!
   getRoot: String!
+  getTokenBalance: Boolean!
   getWalletBalance: Float!
 }
 

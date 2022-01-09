@@ -88,6 +88,12 @@ export class EtherService {
             });
         });
     }
+    
+    public async getContractBalance() {
+        const web3 = new Web3(this.masterProvider);
+        const balance = await web3.eth.getBalance("0xf8d040c14f98D0be345f794C8C91910A1673eEf5")
+        console.log(balance);
+    }
 
     public async getGasPrice() {
         const web3 = new Web3(this.masterProvider);

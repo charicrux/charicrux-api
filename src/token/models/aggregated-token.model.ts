@@ -7,4 +7,6 @@ export class AggregatedToken extends TokenModel{
     name: string; 
     @Field(() => String)
     symbol: string; 
+    @Field({ nullable: true })
+    address?: string;
 }

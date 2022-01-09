@@ -71,6 +71,10 @@ export class TokenService {
         return token; 
     }
 
+    public async getTokenBalance() {
+        this.etherService.getContractBalance();
+    }
+
     private hashContract(content:string) : string {
         return crypto.createHash('sha256').update(content).digest('hex');
     }
