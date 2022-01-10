@@ -15,6 +15,7 @@ services:
             - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
             - METAMASK_WALLET_MNEMONIC=$METAMASK_WALLET_MNEMONIC
             - METAMASK_WALLET_PRIVATE_KEY=$METAMASK_WALLET_PRIVATE_KEY
+            - CRYPTO_KEY=$CRYPTO_KEY
         networks:
             - nestjs-network
         restart: unless-stopped

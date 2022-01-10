@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { TokenModule } from './token/token.module';
 import { AWSModule } from './aws/aws.module';
+import { WalletModule } from './wallet/wallet.module';
 const { join } = require('path');
 
 const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -36,6 +37,7 @@ const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'develop
     OrganizationsModule,
     TokenModule,
     AWSModule,
+    WalletModule,
   ],
   controllers: [AppController],
   providers: [AppService],

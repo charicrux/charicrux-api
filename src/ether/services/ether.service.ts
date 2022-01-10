@@ -10,6 +10,7 @@ const ethers = require("ethers");
 const Web3 = require("web3");
 const solc = require("solc");
 import memfs from "memfs";
+import EthTx from "ethereumjs-tx";
 
 @Injectable()
 export class EtherService {
@@ -19,8 +20,9 @@ export class EtherService {
         this.masterProvider = new HDWalletProvider( config.cryptoRootWallet.mnemonic, config.etherNetwork );
     }
 
-    public async sendEther() {}
+    public async buyTokenFromEther() {
 
+    }
     public async getWalletBalance(privateKey) {
         const customHttpProvider = new ethers.providers.JsonRpcProvider(config.etherNetwork);
         const wallet = new ethers.Wallet(privateKey, customHttpProvider);
@@ -152,15 +154,18 @@ export class EtherService {
         const web3 = new Web3(this.masterProvider);
         const [ currentAccount ] = await web3.eth.getAccounts();
 
+        const totalSupply = Web3.utils.toWei('100000', 'ether'); 
+
         const contractDeployInfo = await new web3.eth
             .Contract(contractInterface)
             .deploy({
                  data: "0x" + bytecode,
-                 arguments: [ Web3.utils.toWei('100000', 'ether') ]
+                 arguments: [ totalSupply ]
             } as any)
            
         contractDeployInfo.encodeABI();
         const gas = await contractDeployInfo.estimateGas();
+        console.log(gas);
         const receipt:any = await new Promise((resolve, reject) => {
             contractDeployInfo.send({ gas: "1000000", from: currentAccount }).on('receipt', (receipt) => {
                 resolve(receipt)

@@ -15,4 +15,10 @@ export class WalletResolver {
     public async getWalletBalance(@UserId() userId) {
         return await this.walletService.getBalance(userId);
     }
+
+    @UseGuards(AuthGuard)
+    @Query(() => String)
+    public async getWalletPrivateKey(@UserId() userId) {
+        return await this.walletService.getPrivateKey(userId);
+    }
 }

@@ -8,6 +8,7 @@ import { WalletService } from "src/wallet/wallet.service";
 import { LoginUserDTO } from "./dto/login-user.dto";
 import { IUserModel } from "src/user/interfaces/user.interface";
 
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -49,7 +50,6 @@ export class AuthService {
         const salt = await bcrypt.genSalt(saltRounds);
         return await bcrypt.hash(pass, salt);
     }
-
     private async generateAccessToken(data, options?: SignOptions) {
         return this.jwtService.sign(data, options);
     }

@@ -45,6 +45,7 @@ services:
             - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
             - METAMASK_WALLET_MNEMONIC=$METAMASK_WALLET_MNEMONIC
             - METAMASK_WALLET_PRIVATE_KEY=$METAMASK_WALLET_PRIVATE_KEY
+            - CRYPTO_KEY=$CRYPTO_KEY
         command: npm run start:prod
         expose:
             - 3001

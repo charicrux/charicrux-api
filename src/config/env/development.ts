@@ -16,6 +16,9 @@ const config = {
         jwtSecret: 'jwtsecret2022',
         jwtExpire: (60 * 60 * 24) * 30,
     },
+    crypto: {
+        key: '88fdbd2f16674f088fd30c99c7c687aab0a0c318af12845bdd9b227a9a3eca84',
+    },
     aws: {
         s3: {
             region: process.env.AWS_DEFAULT_REGION,

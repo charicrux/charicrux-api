@@ -16,6 +16,9 @@ const config = {
         jwtSecret: process.env.JWT_SECRET,
         jwtExpire: (60 * 60 * 24) * 30,
     },
+    crypto: {
+        key: process.env.CRYPTO_KEY,
+    },
     aws: {
         s3: {
             region: process.env.AWS_DEFAULT_REGION,

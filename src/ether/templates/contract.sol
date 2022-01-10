@@ -18,7 +18,7 @@ contract OrganizationToken {
 
      constructor(uint256 total) {
         totalSupply_ = total;
-        balances[msg.sender] = 0;
+        balances[msg.sender] = total;
     }
 
     function totalSupply() public view returns (uint256) {
