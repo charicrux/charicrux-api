@@ -1,10 +1,8 @@
 import * as mongoose from "mongoose";
 
-export const getAggregatedToken = (organizationId:string) => ([
+export const getAggregatedToken = ($match) => ([
     {
-        $match: {
-            organizationId: new mongoose.Types.ObjectId(organizationId),
-        }
+        $match,
     },
     {
         $lookup: {

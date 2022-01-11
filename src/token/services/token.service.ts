@@ -70,10 +70,9 @@ export class TokenService {
         } catch (e:any) {
             const [ user ]:IUserModel[] = await this.userService.findById(userId);
             await this.tokenRepository.deleteByOrganizationId(user.organizationId);
-            return false; 
+            return new InternalServerErrorException("Failed to Create Token");
         } 
     }
-    
     public async getAggregatedToken({ organizationId } : GetAggregatedTokenDTO) {
         const [ token ] = await this.tokenRepository.getAggregatedToken(organizationId);
         return token; 

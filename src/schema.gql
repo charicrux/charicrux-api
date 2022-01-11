@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AggregatedOrganization {
+  _id: ID!
+  name: String!
+  symbol: String!
+}
+
 type AggregatedToken {
   address: String
   name: String!
@@ -21,6 +27,13 @@ type AggregatedUser {
   roles: [String!]!
   status: String!
   wallet: Wallet!
+}
+
+input CreateOrganizationDTO {
+  description: String!
+  email: String!
+  name: String!
+  symbol: String!
 }
 
 input CreateUserDTO {
@@ -48,6 +61,7 @@ input LoginUserDTO {
 }
 
 type Mutation {
+  createOrganization(input: CreateOrganizationDTO!): Boolean!
   createToken: Boolean!
   createUser(input: CreateUserDTO!): AggregatedUser!
   loginUser(input: LoginUserDTO!): AggregatedUser!
@@ -60,6 +74,7 @@ type Organization {
 }
 
 type Query {
+  getAggregatedOrganizations(query: String!): [AggregatedOrganization!]!
   getAggregatedToken(input: GetAggregatedTokenDTO!): AggregatedToken!
   getGasEstimate(input: GetGasEstimateDTO!): GetGasEstimateModel!
   getOrganizations(query: String!): [Organization!]!
