@@ -1,10 +1,10 @@
+import { networks } from "./networks";
+
 require("dotenv").config();
 const path = require('path');
 
 const staticConfig = {
-    etherNetworks: {
-        ropsten: process.env.ROPSTEN_NETWORK_URL
-    },
+    etherNetworks: networks,
     cryptoRootWallet: {
         mnemonic: process.env.METAMASK_WALLET_MNEMONIC,
         privateKey: process.env.METAMASK_WALLET_PRIVATE_KEY

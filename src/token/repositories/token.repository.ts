@@ -4,6 +4,7 @@ import { Model  } from "mongoose";
 import { getAggregatedToken } from "../aggregations/token.aggregation";
 import { ITokenModel } from "../interfaces/token.interface";
 import * as mongoose from "mongoose";
+import config from "src/config";
 @Injectable()
 export class TokenRespository { 
     constructor(
@@ -12,16 +13,16 @@ export class TokenRespository {
     ) {}
 
     public async deleteByOrganizationId(organizationId) {
-        return await this.tokenModel.deleteOne({ organizationId: new mongoose.Types.ObjectId(organizationId)})
+        return await this.tokenModel.deleteOne({ organizationId: new mongoose.Types.ObjectId(organizationId),  network: config.etherNetwork})
     }
 
     public async getAggregatedToken(organizationId:string) {
-        const $match = { organizationId: new mongoose.Types.ObjectId(organizationId)};
+        const $match = { organizationId: new mongoose.Types.ObjectId(organizationId), network: config.etherNetwork};
         return await this.tokenModel.aggregate(getAggregatedToken($match));
     }
 
     public async updateByOrganizationId(organizationId:string, update:any) {
-        return await this.tokenModel.updateOne({ organizationId, }, { $set: update });
+        return await this.tokenModel.updateOne({ organizationId, network: config.etherNetwork }, { $set: update });
     }  
 
     public async create(organizationId:string, contractHash:string) {

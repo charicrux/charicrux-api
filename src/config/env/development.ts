@@ -1,8 +1,12 @@
 import { ES3Buckets } from "src/aws/enums/s3Buckets.enum";
+import { ETokenNetwork } from "src/token/enums/token-network.enum";
+import { networks } from "../static/networks";
 
 export {};
 
 require("dotenv").config();
+
+const ETHEREUM_NETWORK = ETokenNetwork.ROBSTEN;
 
 const config = {
     mongodb: {
@@ -34,7 +38,8 @@ const config = {
         }
     },
     port: 3001,
-    etherNetwork: process.env.ETHER_NETWORK_URL,
+    etherNetwork: ETHEREUM_NETWORK,
+    etherNetworkURL: networks[ETHEREUM_NETWORK],
 }
 
 module.exports = config; 

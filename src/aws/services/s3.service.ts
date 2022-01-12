@@ -24,6 +24,26 @@ export class S3Service {
           return signedUrl;
     }
 
+    async getPrivateObjectBody({ key, bucket }) {
+        const getParams = {
+            Bucket: bucket,
+            Key: key,
+        }
+
+        return await new Promise((resolve, reject) => {
+            s3.getObject(getParams, function (err, data) {
+                if (err) {
+                    console.log(err);
+                    reject(null)
+                    return; 
+                } else {
+                    resolve(data.Body); 
+                    return; 
+                }
+            });
+        });
+    }
+
     async uploadPrivateObject({ bucketName, buffer, key } : { bucketName: ES3Buckets, buffer:Buffer, key:string }) {
         var params = {
             Bucket: bucketName,

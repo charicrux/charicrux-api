@@ -9,22 +9,80 @@ const crypto = require("crypto");
 const ethers = require("ethers");
 const Web3 = require("web3");
 const solc = require("solc");
-import memfs from "memfs";
-import EthTx from "ethereumjs-tx";
+// import memfs from "memfs";
+// import EthTx from "ethereumjs-tx";
+const moment = require("moment");
 
 @Injectable()
 export class EtherService {
     private readonly masterProvider:typeof HDWalletProvider; 
+    private readonly web3:typeof Web3
 
     constructor() {
-        this.masterProvider = new HDWalletProvider( config.cryptoRootWallet.mnemonic, config.etherNetwork );
+        this.masterProvider = new HDWalletProvider( config.cryptoRootWallet.mnemonic, config.etherNetworkURL);
+        this.web3 = new Web3(this.masterProvider);
     }
 
-    public async buyTokenFromEther() {
-
+    public async addLiquidityInUniswapPool(exchangeAddress:string, maxTokens) {
+        const [ clientAccount ] = await this.web3.eth.getAccounts();
+        const exchangeContract = await this.uniswapExchangeContract(exchangeAddress);
+        const minLiquidity = Web3.utils.toWei('0.0025', 'ether');
+        const deadline = moment().add(1, 'y').unix();
+        const ethereumAmount = Web3.utils.toWei('0.0005', 'ether'); // WEI
+        //1647947013
+        //1610409737
+        console.log(deadline);
+        const response = await exchangeContract.methods
+            .addLiquidity(1, maxTokens, deadline)
+            .send({ value: ethereumAmount, from: clientAccount, gas: 200000});
+        console.log(response);
     }
+
+    public async uniswapExchangeContract(exchangeAddress:string){
+        const exchangeABIPath = path.join(__dirname, "../json/UniswapExchangeABI.json");
+        const exchangeABI = JSON.parse(await fs.readFile(exchangeABIPath, 'utf-8'))
+        const exchangeContract = new this.web3.eth.Contract(exchangeABI, exchangeAddress);
+        return exchangeContract; 
+    }
+
+    public async uniswapFactoryContract(){
+        const factoryAddress = "0x9c83dCE8CA20E9aAF9D3efc003b2ea62aBC08351";
+        const factoryABIPath = path.join(__dirname, "../json/UniswapFactoryABI.json");
+        const factoryABI = JSON.parse(await fs.readFile(factoryABIPath, 'utf-8'))
+        const factoryContract = new this.web3.eth.Contract(factoryABI, factoryAddress);
+        return factoryContract; 
+    }
+
+    public async getExchangeAddressByToken(token:string) {      
+        const factoryContract = await this.uniswapFactoryContract();
+        const exchangeAddress = await factoryContract.methods.getExchange(token).call();
+        return exchangeAddress; 
+    }
+
+    /** Deploys Uniswap Exchange for Token
+     * 
+     * @param tokenAddress contract address of deployed token
+     * @returns exchange address of token that handles swaps
+     */
+
+    public async deployExchangeWithUniswapProtocol(tokenAddress:string) {
+        const factoryContract = await this.uniswapFactoryContract();
+        const [ clientAccount ] = await this.web3.eth.getAccounts();
+        const transaction = await factoryContract.methods.createExchange(tokenAddress).send({ from: clientAccount }).catch(e => {
+            console.log(e);
+            return null;
+        });
+        if (!transaction) return new InternalServerErrorException("Failed to Create New Exchange");
+        const exchangeAddress = await factoryContract.methods.getExchange(tokenAddress).call();
+        return exchangeAddress; 
+    }
+
+    /** 
+     *    @param privateKey user private key
+     */  
+
     public async getWalletBalance(privateKey) {
-        const customHttpProvider = new ethers.providers.JsonRpcProvider(config.etherNetwork);
+        const customHttpProvider = new ethers.providers.JsonRpcProvider(config.etherNetworkURL);
         const wallet = new ethers.Wallet(privateKey, customHttpProvider);
         const balance = await wallet.getBalance(); 
         const ether = Web3.utils.fromWei(balance.toString(), "ether" );
@@ -53,9 +111,9 @@ export class EtherService {
         return { outputFileName, absolutePath };
     }
 
-    public async compileSmartContractWithSolidity(absolutePath:string, _outputFileName:string) : Promise<{ interface:any, bytecode:any }> {
+    public async compileSmartContractWithSolidity(source:any, _outputFileName:string) : Promise<{ interface:any, bytecode:any }> {
         const identifer = "OrganizationToken";
-        const source = await fs.readFile(absolutePath, "utf8");
+        
         // return solc.compile(source, 1).contracts[`:${identifer}`];
 
         const input = {
@@ -91,15 +149,26 @@ export class EtherService {
         });
     }
     
-    public async getContractBalance() {
-        const web3 = new Web3(this.masterProvider);
-        const balance = await web3.eth.getBalance("0xf8d040c14f98D0be345f794C8C91910A1673eEf5")
-        console.log(balance);
+    public async getTokenBalanceByAddress(contractABI, contractAddress, clientAddress) {
+        const [ clientAccount ] = await this.web3.eth.getAccounts();
+        const tokenContract = new this.web3.eth.Contract(contractABI, contractAddress);
+        const tokenBalance = await tokenContract.methods.balanceOf(clientAddress).call({ from: clientAccount });
+        return tokenBalance; 
+    }
+
+    public async tokenContract(contractABI, contractAddress) {
+        const tokenContract = new this.web3.eth.Contract(contractABI, contractAddress);
+    }
+
+    public async approveTokens(contractABI, contractAddress, exchangeAddress, balance) {
+        const [ clientAccount ] = await this.web3.eth.getAccounts();
+        const tokenContract = new this.web3.eth.Contract(contractABI, contractAddress);
+        const approve = await tokenContract.methods.approve(exchangeAddress, balance).call({ from: clientAccount });
+        console.log(approve);
     }
 
     public async getGasPrice() {
-        const web3 = new Web3(this.masterProvider);
-        const response = await web3.eth.getGasPrice();
+        const response = await this.web3.eth.getGasPrice();
         const gasPrice = Number(response); // WEI
         return gasPrice; 
     }
@@ -109,6 +178,12 @@ export class EtherService {
         const gasCostETH = Web3.utils.fromWei(Web3.utils.toBN(gasCostWEI), 'ether');
         return gasCostETH;
     }  
+
+    /**
+     * 
+     * @param maxGasUnits 
+     * @returns gasCostETH represents minimum cost and maxGasCostETH represents max cost
+     */
 
     public async estimateContractGasPrice(maxGasUnits:number) {
         const { size } = await fs.stat(config.contract.templateDir);
@@ -122,7 +197,7 @@ export class EtherService {
     public async transferCryptoFromClient(privateKey) {
         const provider = new HDWalletProvider(
             privateKey,
-            config.etherNetwork
+            config.etherNetworkURL
         );
 
         const web3 = new Web3(provider);
@@ -151,12 +226,11 @@ export class EtherService {
         // Before Deployment
         // 1. Need to Verify Token Doesn't Already Exist
 
-        const web3 = new Web3(this.masterProvider);
-        const [ currentAccount ] = await web3.eth.getAccounts();
+        const [ currentAccount ] = await this.web3.eth.getAccounts();
 
         const totalSupply = Web3.utils.toWei('100000', 'ether'); 
 
-        const contractDeployInfo = await new web3.eth
+        const contractDeployInfo = await new this.web3.eth
             .Contract(contractInterface)
             .deploy({
                  data: "0x" + bytecode,
@@ -183,14 +257,14 @@ export class EtherService {
     }
 
     public generateAddress() : { address:string, privateKey:string } {
-        const customHttpProvider = new ethers.providers.JsonRpcProvider(config.etherNetwork);
+        const customHttpProvider = new ethers.providers.JsonRpcProvider(config.etherNetworkURL);
         const privateKey = this.generatePrivateKey();
         const { address } = new ethers.Wallet(privateKey, customHttpProvider);
         return { address, privateKey };
     }
 
     private generateAddressFromPrivateKey(privateKey) {
-        const customHttpProvider = new ethers.providers.JsonRpcProvider(config.etherNetwork);
+        const customHttpProvider = new ethers.providers.JsonRpcProvider(config.etherNetworkURL);
         return new ethers.Wallet(privateKey, customHttpProvider);
     }
 

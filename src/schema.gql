@@ -75,13 +75,13 @@ type Organization {
 
 type Query {
   getAggregatedOrganizations(query: String!): [AggregatedOrganization!]!
-  getAggregatedToken(input: GetAggregatedTokenDTO!): AggregatedToken!
+  getAggregatedToken(input: GetAggregatedTokenDTO!): AggregatedToken
   getGasEstimate(input: GetGasEstimateDTO!): GetGasEstimateModel!
   getOrganizations(query: String!): [Organization!]!
   getRoot: String!
-  getTokenBalance: Boolean!
   getWalletBalance: Float!
   getWalletPrivateKey: String!
+  uniswapDeploy: Boolean!
 }
 
 type Wallet {

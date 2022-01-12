@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { MongooseModule } from "@nestjs/mongoose";
 import config from "src/config";
@@ -32,6 +32,7 @@ import { OrganizationsModule } from "src/organizations/organizations.module";
         AWSModule,
         OrganizationsModule,
         WalletModule,
+        AWSModule,
     ],
     providers: [ 
         TokenService, 
