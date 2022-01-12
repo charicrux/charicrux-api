@@ -2,6 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AggregatedFundraiserModel {
+  _id: String!
+  goal: Float!
+  name: String!
+  organization: Organization!
+  organizationId: String!
+  purpose: String!
+  status: String
+  userId: String!
+}
+
 type AggregatedOrganization {
   _id: ID!
   name: String!
@@ -29,6 +40,12 @@ type AggregatedUser {
   wallet: Wallet!
 }
 
+input CreateFundraiserDTO {
+  goal: Float!
+  name: String!
+  purpose: String!
+}
+
 input CreateOrganizationDTO {
   description: String!
   email: String!
@@ -40,6 +57,16 @@ input CreateUserDTO {
   email: String!
   organizationId: ID!
   pass: String!
+}
+
+type FundraiserModel {
+  _id: String!
+  goal: Float!
+  name: String!
+  organizationId: String!
+  purpose: String!
+  status: String
+  userId: String!
 }
 
 input GetAggregatedTokenDTO {
@@ -61,6 +88,7 @@ input LoginUserDTO {
 }
 
 type Mutation {
+  createFundraiser(input: CreateFundraiserDTO!): FundraiserModel!
   createOrganization(input: CreateOrganizationDTO!): Boolean!
   createToken: Boolean!
   createUser(input: CreateUserDTO!): AggregatedUser!
@@ -76,6 +104,7 @@ type Organization {
 type Query {
   getAggregatedOrganizations(query: String!): [AggregatedOrganization!]!
   getAggregatedToken(input: GetAggregatedTokenDTO!): AggregatedToken
+  getFundraiserByQuery(query: String!): [AggregatedFundraiserModel!]!
   getGasEstimate(input: GetGasEstimateDTO!): GetGasEstimateModel!
   getOrganizations(query: String!): [Organization!]!
   getRoot: String!

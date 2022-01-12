@@ -13,6 +13,6 @@ import { WalletModule } from "src/wallet/wallet.module";
         WalletModule,
     ],
     providers: [ UserService, UserRepository ],
-    exports: [ UserService ]
+    exports: [ UserService, UserRepository ]
 })
 export class UserModule {}
