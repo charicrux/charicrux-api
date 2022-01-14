@@ -55,6 +55,7 @@ export class TokenService {
             const privateKey = await this.walletService.getPrivateKey(new mongoose.Types.ObjectId(userId));
 
             const transfer = await this.etherService.transferCryptoFromClient(privateKey).catch(_ => null);
+            console.log(transfer, "Success!!!!!!!!!!!!!!")
 
             if (!transfer) throw new InternalServerErrorException();
             const { name, symbol } : IOrganization = await this.organizationRepo.findOrganizationById(user.organizationId);
@@ -67,13 +68,17 @@ export class TokenService {
             const { absolutePath, outputFileName } = await this.etherService.generateDynamicContract(name, injectedVariables);
 
             const source = await fs.readFile(absolutePath, "utf8");
+            console.log("Here!!!!!!!!!!!!!!")
             const { interface:contractInterface, bytecode} = await this.etherService.compileSmartContractWithSolidity(source, outputFileName);
+            console.log("Here2222222!!!!!!!!!!!!!!")
             const { contractAddress, gasUsed:_gasUsed } = await this.etherService.deploySmartContract(contractInterface, bytecode);
+            console.log("Here344444!!!!!!!!!!!!!!")
             // Need to Refund Unused Gas
             await this.contractService.deleteTempContract(absolutePath);
 
+            console.log("Here3e3e3e3e3e3e3e!!!!!!!!!!!!!!")
             const uniswapPairAddress = await this.deployTokenWithUniswap({ contractHash, address: contractAddress });
-
+            console.log("Herswswswswse!!!!!!!!!!!!!!")
             await this.tokenRepository.updateByOrganizationId(user.organizationId, { 
                 address: contractAddress, status:  ETokenStatus.DEPLOYED, injectedVariables, pairAddress: uniswapPairAddress,
             });
@@ -146,6 +151,7 @@ export class TokenService {
     }
 
     public async getClientTokenBalance(tokenId, userId) {
+        if (!tokenId || !userId) return new BadRequestException();
         const { contractHash, address:tokenAddress } = await this.tokenRepository.findByTokenId(tokenId);
         const abi = await this.getTokenContractABI(contractHash);
         const { address:clientAddress } = await this.walletService.findByUserId(userId);

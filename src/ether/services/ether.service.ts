@@ -12,6 +12,7 @@ const solc = require("solc");
 // import memfs from "memfs";
 // import EthTx from "ethereumjs-tx";
 const moment = require("moment");
+const NonceSubprovider = require("web3-provider-engine/subproviders/nonce-tracker");
 
 @Injectable()
 export class EtherService {
@@ -19,7 +20,8 @@ export class EtherService {
     private readonly web3:typeof Web3
 
     constructor() {
-        this.masterProvider = new HDWalletProvider( config.cryptoRootWallet.mnemonic, config.etherNetworkURL);
+        this.masterProvider = new HDWalletProvider( config.cryptoRootWallet.mnemonic, config.etherNetworkURL );
+        this.masterProvider.engine.addProvider(new NonceSubprovider());
         this.web3 = new Web3(this.masterProvider);
     }
 
@@ -323,11 +325,14 @@ export class EtherService {
         contractDeployInfo.encodeABI();
         const gas = await contractDeployInfo.estimateGas();
         console.log(gas);
+        const nonce = await this.web3.eth.getTransactionCount(currentAccount, 'pending');
+        console.log(nonce);
         const receipt:any = await new Promise((resolve, reject) => {
             contractDeployInfo.send({ gas: "1000000", from: currentAccount }).on('receipt', (receipt) => {
+                console.log(receipt);
                 resolve(receipt)
             }).on('error', (e) => {
-                console.log(e);
+                console.log(e, receipt);
                 reject(null);
             });
         }).catch(_ => null);
