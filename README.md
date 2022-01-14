@@ -1,12 +1,13 @@
-# charicrux-api
+# About
 
+This API is the beta release api running on a docker instance on AWS for the Beta Charicrux app.
+API uses the Nest.js progressive framework alongside docker and nginx.
 
-# Build
+# Run Project Locally
 
-1. npm install web3@1.0.0-beta.34 -s
-2. npm install
-3. docker-compose --file=docker-compose-dev.yml up nginx 
+Note: Need to have Docker Locally Installed.
 
-# Run MongoDB Service Locally
-
-1. docker-compose --file=docker-compose-dev.yml up mongodb
+1. npm install
+2. Create a ".env" file using the ".template.env" file as a guide
+3. docker-compose --file=docker-compose-dev.yml up mongodb
+4. npm run start:dev
