@@ -14,6 +14,7 @@ const TokenSchema = new mongoose.Schema({
     injectedVariables: { type: [ TokenVariableSchema ], required: true, default: [] },
     network: { type: String, required: true, default: config.etherNetwork },
     organizationId: { type: mongoose.Types.ObjectId, required: true },
+    pairAddress: { type: String, required: false, default: null },
 });
 
 TokenSchema.index({ organizationId: 1, network: 1 }, { unique: true });

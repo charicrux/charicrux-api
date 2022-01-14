@@ -19,6 +19,7 @@ export const getAggregatedToken = ($match) => ([
         $addFields: {
             name: "$organization.name",
             symbol: "$organization.symbol",
+            description: "$organization.description",
         }
     },
     {

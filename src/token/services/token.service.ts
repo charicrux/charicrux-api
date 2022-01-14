@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, ConsoleLogger, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { IOrganization } from "src/organizations/interfaces/organization.interface";
 import { IUserModel } from "src/user/interfaces/user.interface";
 import { UserService } from "src/user/user.service";
@@ -14,7 +14,10 @@ import { WalletService } from "src/wallet/wallet.service";
 import * as mongoose from "mongoose";
 import { ITokenModel } from "../interfaces/token.interface";
 import { S3Service } from "src/aws/services/s3.service";
-import { add } from "nconf";
+import { add, use } from "nconf";
+import { TokensForFixedEtherDTO } from "../dto/tokens-for-fixed-ether.dto";
+import { PositionsService } from "./positions.service";
+const Web3 = require('web3');
 const path = require('path');
 const fs = require("fs/promises");
 const crypto = require('crypto');
@@ -30,6 +33,7 @@ export class TokenService {
         private readonly walletService: WalletService,
         private readonly organizationRepo: OrganizationRepository,
         private readonly s3Service: S3Service,
+        private readonly positionsService: PositionsService
     ){} 
 
     public async create(userId:string) {
@@ -68,10 +72,10 @@ export class TokenService {
             // Need to Refund Unused Gas
             await this.contractService.deleteTempContract(absolutePath);
 
-           // await this.deployTokenWithUniswap({ ...token, address: contractAddress });
+            const uniswapPairAddress = await this.deployTokenWithUniswap({ contractHash, address: contractAddress });
 
             await this.tokenRepository.updateByOrganizationId(user.organizationId, { 
-                address: contractAddress, status:  ETokenStatus.DEPLOYED, injectedVariables, 
+                address: contractAddress, status:  ETokenStatus.DEPLOYED, injectedVariables, pairAddress: uniswapPairAddress,
             });
 
             return true; 
@@ -95,7 +99,7 @@ export class TokenService {
         return contractInterface;
     }
 
-    public async getContractABI(contractHash) {
+    public async getTokenContractABI(contractHash) {
         const contractFolder = path.join(__dirname, "../temp");
         const contractPath = path.join(contractFolder, `${contractHash}.json`);
         const contract = await fs.readFile(contractPath, 'utf-8').catch(_ => null);
@@ -104,30 +108,54 @@ export class TokenService {
         else return await this.loadContract(contractHash, contractFolder, contractPath);
     }
 
-    public async deployTokenWithUniswap({ contractHash, address }:ITokenModel) {
-        // Exchange Address 0xa36DCE1e70B113c3c1cc8CD9CEC95B8df014F0f0
-        // const exchangeAddress = "0xa36DCE1e70B113c3c1cc8CD9CEC95B8df014F0f0"; 
-        // const abi = await this.getContractABI(contractHash);
-        // const tokenContract = await this.etherService.tokenContract(abi, address);
+    public async deployTokenWithUniswap({ contractHash, address }) {
+        const abi = await this.getTokenContractABI(contractHash);
+        return await this.etherService.uniswapDeployWithRouterV2(abi, address);
+    }
 
+    public async buyTokensForFixedEther(userId, transaction:TokensForFixedEtherDTO) {
+        try {
+            const privateKey = await this.walletService.getPrivateKey(userId);
+            const { ether, tokenId } = transaction;
+            const { address:walletAddress } = await this.walletService.findByUserId(userId);    
+            const { address:tokenAddress } = await this.tokenRepository.findByTokenId(tokenId);
+            const response = await this.etherService.buyTokensForFixedEther(privateKey, walletAddress, tokenAddress, ether).then(async () => {
+                await this.positionsService.create(userId, tokenId);
+                return true;
+            }).catch(() => false);
+            return response; 
+        } catch (e) {
+            console.log(e);
+            return false; 
+        }
+    }
 
-        // const clientAddress = "0x23E22c8B1f0a611f6EA3DEadea35Fa67eCe3ac6A";
-        // const balance = await this.getTokenBalance(abi, address, clientAddress);
-        // await this.etherService.approveTokens(abi, address, exchangeAddress, balance);
-        
-       // await this.etherService.addLiquidityInUniswapPool(exchangeAddress, balance)
-       //const tokenReserve = abi.methods.balanceOf("0x68A392a28d85C288A41e188f8dC119f5E122b6Db");
-
-        // const exchangeAddress = await this.etherService.deployExchangeWithUniswapProtocol(address);
-        // if (!exchangeAddress) throw new InternalServerErrorException("Failed to Deploy Exchange");
-        // console.log(exchangeAddress);
-
-        //return exchangeAddress; 
+    public async getPairAddress() {
+        await this.etherService.getPairAddress("0x8af67Ba372F5B368a3fAb5AA97A45440CA5AAEa6");
     }
 
     public async getAggregatedToken({ organizationId } : GetAggregatedTokenDTO) {
         const [ token ] = await this.tokenRepository.getAggregatedToken(organizationId);
         return token; 
+    }
+
+    public async getTokenStats(tokenId, ether) {
+        const { address:tokenAddress } = await this.tokenRepository.findByTokenId(tokenId);
+        const tokenTradeValue = await this.getTokenTradeValue(tokenAddress, ether);
+        return { price: tokenTradeValue };
+    }
+
+    public async getClientTokenBalance(tokenId, userId) {
+        const { contractHash, address:tokenAddress } = await this.tokenRepository.findByTokenId(tokenId);
+        const abi = await this.getTokenContractABI(contractHash);
+        const { address:clientAddress } = await this.walletService.findByUserId(userId);
+        const clientBalance = await this.getTokenBalance(abi, tokenAddress, clientAddress);
+        const inDecimalFormat = Web3.utils.fromWei(clientBalance.toString(), 'ether');
+        return { balance: inDecimalFormat };
+    }
+
+    public async getTokenTradeValue(tokenAddress, ether) {
+        return await this.etherService.getTokenTradeValue(tokenAddress, ether);
     }
 
     public async getTokenBalance(abi, contractAddress, clientAddress) {

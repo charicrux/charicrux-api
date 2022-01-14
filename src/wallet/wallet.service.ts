@@ -19,6 +19,10 @@ export class WalletService {
         return await this.etherService.getWalletBalance(decryptedKey);
     }
 
+    public async findByUserId(userId) {
+        return this.walletRepo.findByUserId(userId);
+    }
+
     public async create(userId:mongoose.Types.ObjectId) {
         const { address, privateKey } = this.etherService.generateAddress();
         const privateKeyPacket = this.encryptWithAES(privateKey);

@@ -12,6 +12,10 @@ export class TokenRespository {
         private readonly tokenModel: Model<ITokenModel>,
     ) {}
 
+    public async findByTokenId(tokenId) {
+        return await this.tokenModel.findById(tokenId);
+    }   
+
     public async deleteByOrganizationId(organizationId) {
         return await this.tokenModel.deleteOne({ organizationId: new mongoose.Types.ObjectId(organizationId),  network: config.etherNetwork})
     }

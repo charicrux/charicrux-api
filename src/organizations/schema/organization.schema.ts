@@ -5,7 +5,7 @@ const OrganizationSchema = new mongoose.Schema({
     symbol: { type: String, required: true },
     name: { type: String, required: true },
     description: { type: String, required: true, default: "", },
-    status: { type: String, required: true, default: EOrganizationStatus.CREATED },
+    status: { type: String, required: true, default: EOrganizationStatus.APPROVED },
 }, { timestamps: true });
 
 

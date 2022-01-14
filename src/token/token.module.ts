@@ -1,4 +1,4 @@
-import { forwardRef, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { MongooseModule } from "@nestjs/mongoose";
 import config from "src/config";
@@ -14,6 +14,9 @@ import { ContractService } from "./services/contract.service";
 import { AWSModule } from "src/aws/aws.module";
 import { WalletModule } from "src/wallet/wallet.module";
 import { OrganizationsModule } from "src/organizations/organizations.module";
+import { PositionsSchema } from "./schemas/positions.schema";
+import { PositionsRepository } from "./repositories/postions.repository";
+import { PositionsService } from "./services/positions.service";
 
 @Module({
     imports: [
@@ -26,6 +29,7 @@ import { OrganizationsModule } from "src/organizations/organizations.module";
         MongooseModule.forFeature([
             { name: "token", schema: TokenSchema },
             { name: "contract", schema: ContractSchema },
+            { name: "position", schema: PositionsSchema },
         ]),
         UserModule,
         EtherModule,
@@ -38,6 +42,8 @@ import { OrganizationsModule } from "src/organizations/organizations.module";
         TokenService, 
         TokenResolver, 
         TokenRespository,
+        PositionsRepository,
+        PositionsService,
         ContractService,
         ContractRepository,
     ],

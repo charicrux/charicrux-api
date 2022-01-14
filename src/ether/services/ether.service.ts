@@ -23,33 +23,115 @@ export class EtherService {
         this.web3 = new Web3(this.masterProvider);
     }
 
-    public async addLiquidityInUniswapPool(exchangeAddress:string, maxTokens) {
+    public async getPairAddress(tokenAddress) {
         const [ clientAccount ] = await this.web3.eth.getAccounts();
-        const exchangeContract = await this.uniswapExchangeContract(exchangeAddress);
-        const minLiquidity = Web3.utils.toWei('0.0025', 'ether');
-        const deadline = moment().add(1, 'y').unix();
-        const ethereumAmount = Web3.utils.toWei('0.0005', 'ether'); // WEI
-        //1647947013
-        //1610409737
-        console.log(deadline);
-        const response = await exchangeContract.methods
-            .addLiquidity(1, maxTokens, deadline)
-            .send({ value: ethereumAmount, from: clientAccount, gas: 200000});
-        console.log(response);
+        const factoryContract = await this.uniswapV2FactoryContract();
+        const wethAddress = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
+        const response = await factoryContract.methods.getPair(wethAddress, tokenAddress).call({ from: clientAccount });
+        return response;
+    }
+
+    /**
+     * 
+     * @param address ERC20 Token Contract Address
+     */
+
+    public async uniswapDeployWithRouterV2(tokenABI, address) {
+        try {
+            const ethereumAmount = Web3.utils.toWei('0.0005', 'ether');
+            const [ clientAccount ] = await this.web3.eth.getAccounts();
+            const routerContract = await this.uniswapV2RouterContract();
+            const tokenContract = this.getContractFromABI(tokenABI, address);       
+            const balance = await this.getTokenBalanceByAddress(tokenABI, address, clientAccount);
+            const allowed = await tokenContract.methods.approve("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", balance).send({ from: clientAccount, gas: 100000 })
+            if (!allowed.status) return; 
+    
+            const deadline = moment().add(1, 'h').unix();
+            const toAddress = clientAccount
+            const response = await routerContract.methods.addLiquidityETH(
+                address, balance, balance, ethereumAmount, toAddress, deadline
+            ).send({
+                from: clientAccount, gas: 3000000, value: ethereumAmount
+            });
+            if (!response) new InternalServerErrorException("Failed to Deploy Token Using Uniswap Protocol");
+            return this.getPairAddress(address);
+        } catch (e) { console.log(e) }
+    }
+
+    public async buyTokensForFixedEther(userPrivateKey, userAddress, tokenAddress, ether) {
+        const address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"; // Robsten Uniswap Router Address
+        const routerABIPath = path.join(__dirname, "../json/UniswapV2Router02ABI.json");
+        const abi = JSON.parse(await fs.readFile(routerABIPath, 'utf-8'))
+        const provider = new HDWalletProvider(
+            userPrivateKey,
+            config.etherNetworkURL
+        );
+        const web3 = new Web3(provider);
+        const [ clientAccount ] = await web3.eth.getAccounts();
+        const routerContract = new web3.eth.Contract(abi, address);
+        const toAddress = userAddress// user recieving crypto
+        const tokenPurchaseAmount = Web3.utils.toWei(ether.toString(), 'ether');
+        const deadline = moment().add(1, 'h').unix();
+        const minTokens = 1; 
+        const response = await routerContract.methods.swapExactETHForTokens(minTokens, [
+            '0xc778417E063141139Fce010982780140Aa0cD5Ab', // Weth Robsten Address
+            tokenAddress
+        ], toAddress, deadline).send({ from: clientAccount, gas: 300000, value: tokenPurchaseAmount   })
+        return response; 
+    };
+
+    public async getTokenTradeValue(tokenAddress, ether) {
+        if (!ether || ether <= 1e-7) return 0; 
+        const [ clientAccount ] = await this.web3.eth.getAccounts();
+        const address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"; // Robsten Uniswap Router Address
+        const routerABIPath = path.join(__dirname, "../json/UniswapV2Router02ABI.json");
+        const abi = JSON.parse(await fs.readFile(routerABIPath, 'utf-8'))
+        const routerContract = new this.web3.eth.Contract(abi, address);
+        const response = await routerContract.methods.getAmountsOut(
+            Web3.utils.toWei(ether.toString(), 'ether'), [ 
+                "0xc778417E063141139Fce010982780140Aa0cD5Ab", // weth address
+                tokenAddress,
+            ]
+        ).call({ from: clientAccount });
+        const [ _, tokens ] = response;
+        const tokensAmount = Web3.utils.fromWei(tokens, 'ether');
+        return tokensAmount; 
+    }
+
+    public async uniswapV2FactoryContract(){
+        const address = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"; // Robsten Address
+        const factoryABIPath = path.join(__dirname, "../json/UniswapV2FactoryABI.json");
+        const factoryContract = await this.getContract(address, factoryABIPath);
+        return factoryContract; 
+    }
+
+    public async uniswapV2RouterContract(){
+        const address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"; // Robsten Address
+        const routerABIPath = path.join(__dirname, "../json/UniswapV2Router02ABI.json");
+        const routerContract = await this.getContract(address, routerABIPath);
+        return routerContract; 
     }
 
     public async uniswapExchangeContract(exchangeAddress:string){
         const exchangeABIPath = path.join(__dirname, "../json/UniswapExchangeABI.json");
-        const exchangeABI = JSON.parse(await fs.readFile(exchangeABIPath, 'utf-8'))
-        const exchangeContract = new this.web3.eth.Contract(exchangeABI, exchangeAddress);
+        const exchangeContract = await this.getContract(exchangeAddress, exchangeABIPath);
         return exchangeContract; 
+    }
+
+    public getContractFromABI(abi, address) {
+        return new this.web3.eth.Contract(abi, address);
+    }
+
+    public async getContract(address:string, contractPath:string) {
+        const abi = JSON.parse(await fs.readFile(contractPath, 'utf-8'))
+        const contract = this.getContractFromABI(abi, address);
+        return contract;
     }
 
     public async uniswapFactoryContract(){
         const factoryAddress = "0x9c83dCE8CA20E9aAF9D3efc003b2ea62aBC08351";
         const factoryABIPath = path.join(__dirname, "../json/UniswapFactoryABI.json");
-        const factoryABI = JSON.parse(await fs.readFile(factoryABIPath, 'utf-8'))
-        const factoryContract = new this.web3.eth.Contract(factoryABI, factoryAddress);
+        const factoryContract = await this.getContract(factoryAddress, factoryABIPath);
         return factoryContract; 
     }
 
@@ -158,6 +240,7 @@ export class EtherService {
 
     public async tokenContract(contractABI, contractAddress) {
         const tokenContract = new this.web3.eth.Contract(contractABI, contractAddress);
+        return tokenContract;
     }
 
     public async approveTokens(contractABI, contractAddress, exchangeAddress, balance) {

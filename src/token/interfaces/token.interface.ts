@@ -7,4 +7,5 @@ export interface ITokenModel {
     status: ETokenStatus;
     contractHash: string,
     network: ETokenNetwork,
+    pairAddress: string | null; 
 }

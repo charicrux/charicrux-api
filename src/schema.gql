@@ -15,12 +15,23 @@ type AggregatedFundraiserModel {
 
 type AggregatedOrganization {
   _id: ID!
+  description: String
   name: String!
   symbol: String!
 }
 
+type AggregatedPositionsModel {
+  _id: ID!
+  organization: Organization!
+  token: TokenModel!
+  tokenId: ID!
+  userId: ID!
+}
+
 type AggregatedToken {
+  _id: ID!
   address: String
+  description: String
   name: String!
   organizationId: ID!
   symbol: String!
@@ -93,10 +104,12 @@ type Mutation {
   createToken: Boolean!
   createUser(input: CreateUserDTO!): AggregatedUser!
   loginUser(input: LoginUserDTO!): AggregatedUser!
+  purchaseTokensForFixedEther(input: TokensForFixedEtherDTO!): Boolean!
 }
 
 type Organization {
   _id: ID!
+  description: String
   name: String!
   symbol: String!
 }
@@ -104,13 +117,39 @@ type Organization {
 type Query {
   getAggregatedOrganizations(query: String!): [AggregatedOrganization!]!
   getAggregatedToken(input: GetAggregatedTokenDTO!): AggregatedToken
+  getClientBalance(tokenId: String!): TokenBalanceModel!
   getFundraiserByQuery(query: String!): [AggregatedFundraiserModel!]!
   getGasEstimate(input: GetGasEstimateDTO!): GetGasEstimateModel!
   getOrganizations(query: String!): [Organization!]!
   getRoot: String!
+  getTokenPositions(userId: String!): [AggregatedPositionsModel!]!
+  getTokenStats(input: TokenStatsDTO!): TokenStatsModel!
   getWalletBalance: Float!
   getWalletPrivateKey: String!
-  uniswapDeploy: Boolean!
+}
+
+type TokenBalanceModel {
+  balance: Float!
+}
+
+type TokenModel {
+  _id: ID!
+  address: String!
+  organizationId: ID!
+}
+
+input TokenStatsDTO {
+  ether: Float!
+  tokenId: ID!
+}
+
+type TokenStatsModel {
+  price: Float
+}
+
+input TokensForFixedEtherDTO {
+  ether: Float!
+  tokenId: ID!
 }
 
 type Wallet {

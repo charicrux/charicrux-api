@@ -10,4 +10,7 @@ export class Organization {
 
   @Field(() => String)
   name: string;
+
+  @Field(() => String, { nullable: true })
+  description: string;
 }
